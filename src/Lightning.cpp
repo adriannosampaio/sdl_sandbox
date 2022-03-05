@@ -3,23 +3,20 @@
 
 #include "Lightning.h"
 
-
-#define SDL_MAIN_HANDLED // insert this
-#include <iostream>
-#include <array>
-#include <memory>
-#include <functional>
+#define SDL_MAIN_HANDLED  // insert this
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_timer.h>
 
+#include <array>
+#include <functional>
+#include <iostream>
+#include <memory>
 
-void initialize()
-{
+void initialize() {
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
         printf("error initializing SDL: %s\n", SDL_GetError());
     }
-
 }
 
 void cleanup() {
@@ -28,69 +25,50 @@ void cleanup() {
 }
 
 struct WindowDeleter {
-    void operator()(SDL_Window* win) {
-        SDL_DestroyWindow(win); 
-    }
-}; 
+    void operator()(SDL_Window* win) { SDL_DestroyWindow(win); }
+};
 
 struct RendererDeleter {
-    void operator()(SDL_Renderer* rend) {
-        SDL_DestroyRenderer(rend);
-    }
+    void operator()(SDL_Renderer* rend) { SDL_DestroyRenderer(rend); }
 };
 
 class Window {
- 
-    std::unique_ptr < SDL_Window, WindowDeleter> _window;
+    std::unique_ptr<SDL_Window, WindowDeleter> _window;
     std::unique_ptr<SDL_Renderer, RendererDeleter> _renderer;
-public:
-    Window(const std::string& title, unsigned width, unsigned height) 
-    {
-        _window = std::unique_ptr<SDL_Window, WindowDeleter>(
-            SDL_CreateWindow(
-                "GAME",
-                SDL_WINDOWPOS_CENTERED,
-                SDL_WINDOWPOS_CENTERED,
-                width, height, 0
-            )
-        );
+
+   public:
+    Window(const std::string& title, unsigned width, unsigned height) {
+        _window = std::unique_ptr<SDL_Window, WindowDeleter>(SDL_CreateWindow(
+            "GAME",
+            SDL_WINDOWPOS_CENTERED,
+            SDL_WINDOWPOS_CENTERED,
+            width,
+            height,
+            0));
 
         // triggers the program that controls
         // your graphics hardware and sets flags
         Uint32 render_flags = SDL_RENDERER_ACCELERATED;
         // creates a renderer to render our images
         _renderer = std::unique_ptr<SDL_Renderer, RendererDeleter>(
-            SDL_CreateRenderer(_window.get(), -1, render_flags)
-        );
-    }
-    
-    void clear() {
-        SDL_RenderClear(_renderer.get());
+            SDL_CreateRenderer(_window.get(), -1, render_flags));
     }
 
-    void display() {
-        SDL_RenderPresent(_renderer.get());
-    }
+    void clear() { SDL_RenderClear(_renderer.get()); }
 
-    void render_texture_in_rectangle(SDL_Texture* tex, SDL_Rect rendered_object)
-    {
+    void display() { SDL_RenderPresent(_renderer.get()); }
+
+    void render_texture_in_rectangle(
+        SDL_Texture* tex, SDL_Rect rendered_object) {
         SDL_RenderCopy(_renderer.get(), tex, NULL, &rendered_object);
     }
 
+    SDL_Window* get_window() { return _window.get(); }
 
-    SDL_Window* get_window()
-    {
-        return _window.get();
-    }
-
-    SDL_Renderer* get_renderer() {
-        return _renderer.get();
-    }
-
+    SDL_Renderer* get_renderer() { return _renderer.get(); }
 };
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
     initialize();
     // returns zero on success else non-zero
 
@@ -106,7 +84,8 @@ int main(int argc, char* argv[])
     }
 
     // loads image to our graphics hardware memory.
-    SDL_Texture* tex = SDL_CreateTextureFromSurface(win.get_renderer(), surface);
+    SDL_Texture* tex =
+        SDL_CreateTextureFromSurface(win.get_renderer(), surface);
 
     // clears main-memory
     SDL_FreeSurface(surface);
@@ -141,40 +120,39 @@ int main(int argc, char* argv[])
         // Events management
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
+                case SDL_QUIT:
+                    // handling of close button
+                    close = 1;
+                    break;
 
-            case SDL_QUIT:
-                // handling of close button
-                close = 1;
-                break;
-
-            case SDL_KEYDOWN:
-                auto scancode = event.key.keysym.scancode;
-                if (event.key.keysym.scancode == SDL_SCANCODE_W || event.key.keysym.scancode == SDL_SCANCODE_UP)
-                    dest.y -= speed / 30;
-                if (event.key.keysym.scancode == SDL_SCANCODE_S || event.key.keysym.scancode == SDL_SCANCODE_DOWN)
-                    dest.y += speed / 30;
-                if (event.key.keysym.scancode == SDL_SCANCODE_A || event.key.keysym.scancode == SDL_SCANCODE_LEFT)
-                    dest.x -= speed / 30;
-                if (event.key.keysym.scancode == SDL_SCANCODE_D || event.key.keysym.scancode == SDL_SCANCODE_RIGHT)
-                    dest.x += speed / 30;
+                case SDL_KEYDOWN:
+                    auto scancode = event.key.keysym.scancode;
+                    if (event.key.keysym.scancode == SDL_SCANCODE_W ||
+                        event.key.keysym.scancode == SDL_SCANCODE_UP)
+                        dest.y -= speed / 30;
+                    if (event.key.keysym.scancode == SDL_SCANCODE_S ||
+                        event.key.keysym.scancode == SDL_SCANCODE_DOWN)
+                        dest.y += speed / 30;
+                    if (event.key.keysym.scancode == SDL_SCANCODE_A ||
+                        event.key.keysym.scancode == SDL_SCANCODE_LEFT)
+                        dest.x -= speed / 30;
+                    if (event.key.keysym.scancode == SDL_SCANCODE_D ||
+                        event.key.keysym.scancode == SDL_SCANCODE_RIGHT)
+                        dest.x += speed / 30;
             }
         }
 
         // right boundary
-        if (dest.x + dest.w > 1000)
-            dest.x = 1000 - dest.w;
+        if (dest.x + dest.w > 1000) dest.x = 1000 - dest.w;
 
         // left boundary
-        if (dest.x < 0)
-            dest.x = 0;
+        if (dest.x < 0) dest.x = 0;
 
         // bottom boundary
-        if (dest.y + dest.h > 1000)
-            dest.y = 1000 - dest.h;
+        if (dest.y + dest.h > 1000) dest.y = 1000 - dest.h;
 
         // upper boundary
-        if (dest.y < 0)
-            dest.y = 0;
+        if (dest.y < 0) dest.y = 0;
 
         // clears the screen
         win.clear();

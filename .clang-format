@@ -1,0 +1,25 @@
+﻿---
+BasedOnStyle: Google
+AlignAfterOpenBracket: AlwaysBreak
+AlignConsecutiveMacros: 'true'
+BinPackArguments: 'false'
+BinPackParameters: 'false'
+BreakBeforeTernaryOperators: 'false'
+BreakConstructorInitializers: AfterColon
+CompactNamespaces: 'false'
+ConstructorInitializerAllOnOneLineOrOnePerLine: 'true'
+IndentWidth: '4'
+IndentWrappedFunctionNames: 'true'
+Language: Cpp
+ReflowComments: 'true'
+SortIncludes: 'true'
+SpaceAfterCStyleCast: 'true'
+SpaceAfterTemplateKeyword: 'false'
+SpaceBeforeAssignmentOperators: 'true'
+SpaceInEmptyParentheses: 'false'
+SpacesInAngles: 'false'
+Standard: Cpp11
+TabWidth: '4'
+UseTab: Never
+
+...
