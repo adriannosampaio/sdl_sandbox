@@ -63,8 +63,6 @@ class Window {
         SDL_RenderCopy(_renderer.get(), tex, NULL, &rendered_object);
     }
 
-    SDL_Window* get_window() { return _window.get(); }
-
     SDL_Renderer* get_renderer() { return _renderer.get(); }
 };
 
