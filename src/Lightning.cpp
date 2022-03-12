@@ -38,7 +38,11 @@ class Window {
 
    public:
     Window(const std::string& title, unsigned width, unsigned height) {
-        _window = std::unique_ptr<SDL_Window, WindowDeleter>(SDL_CreateWindow(
+        _window = 
+            std::
+            unique_ptr<  SDL_Window, WindowDeleter >(
+                SDL_CreateWindow
+                (
             "GAME",
             SDL_WINDOWPOS_CENTERED,
             SDL_WINDOWPOS_CENTERED,
@@ -70,9 +74,7 @@ int main(int argc, char* argv[]) {
     initialize();
     // returns zero on success else non-zero
 
-    Window win = Window(
-
-        std::string("GAME WINDOW"), 800, 600);
+    Window win = Window(std::string("GAME WINDOW"), 800, 600);
 
     // creates a surface to load an image into the main memory
     SDL_Surface* surface;
@@ -98,8 +100,8 @@ int main(int argc, char* argv[]) {
     SDL_QueryTexture(tex, NULL, NULL, &dest.w, &dest.h);
 
     // adjust height and width of our image box.
-    dest.w /= 6;
-    dest.h /= 6;
+    dest.w /= 12;
+    dest.h /= 12;
 
     // sets initial x-position of object
     dest.x = (1000 - dest.w) / 2;
