@@ -38,17 +38,13 @@ class Window {
 
    public:
     Window(const std::string& title, unsigned width, unsigned height) {
-        _window = 
-            std::
-            unique_ptr<  SDL_Window, WindowDeleter >(
-                SDL_CreateWindow
-                (
+        _window = std::unique_ptr<SDL_Window, WindowDeleter>(SDL_CreateWindow(
             "GAME",
             SDL_WINDOWPOS_CENTERED,
             SDL_WINDOWPOS_CENTERED,
             width,
             height,
-            0)); 
+            0));
 
         // triggers the program that controls
         // your graphics hardware and sets flags
