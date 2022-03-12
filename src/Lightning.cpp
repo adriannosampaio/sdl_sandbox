@@ -48,7 +48,7 @@ class Window {
             SDL_WINDOWPOS_CENTERED,
             width,
             height,
-            0));
+            0)); 
 
         // triggers the program that controls
         // your graphics hardware and sets flags
