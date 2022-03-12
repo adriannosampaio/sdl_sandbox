@@ -70,7 +70,9 @@ int main(int argc, char* argv[]) {
     initialize();
     // returns zero on success else non-zero
 
-    Window win = Window(std::string("GAME"), 800, 600);
+    Window win = Window(
+
+        std::string("GAME WINDOW"), 800, 600);
 
     // creates a surface to load an image into the main memory
     SDL_Surface* surface;
