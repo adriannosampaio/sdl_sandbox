@@ -12,6 +12,7 @@
 #include <functional>
 #include <iostream>
 #include <memory>
+#include <vector>
 
 void initialize() {
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
@@ -54,7 +55,10 @@ class Window {
             SDL_CreateRenderer(_window.get(), -1, render_flags));
     }
 
-    void clear() { SDL_RenderClear(_renderer.get()); }
+    void clear() {
+        SDL_SetRenderDrawColor(_renderer.get(), 0, 0, 0, SDL_ALPHA_OPAQUE);
+        SDL_RenderClear(_renderer.get());
+    }
 
     void display() { SDL_RenderPresent(_renderer.get()); }
 
@@ -66,11 +70,46 @@ class Window {
     SDL_Renderer* get_renderer() { return _renderer.get(); }
 };
 
+class Renderable {
+   public:
+    virtual void render(Window& window) const = 0;
+};
+
+class Line : public Renderable {
+    std::array<int, 2> _point_0;
+    std::array<int, 2> _point_1;
+    std::array<int, 3> _color;
+
+   public:
+    Line(
+        std::array<int, 2>& origin,
+        std::array<int, 2>& destination,
+        std::array<int, 3>& color) :
+        _point_0(origin), _point_1(destination), _color(color) {}
+    void render(Window& window) const {
+        SDL_SetRenderDrawColor(
+            window.get_renderer(),
+            _color[0],
+            _color[1],
+            _color[2],
+            SDL_ALPHA_OPAQUE);
+
+        SDL_RenderDrawLine(
+            window.get_renderer(),
+            _point_0[0],
+            _point_0[1],
+            _point_1[0],
+            _point_1[1]);
+    }
+};
+
 int main(int argc, char* argv[]) {
     initialize();
     // returns zero on success else non-zero
 
     Window win = Window(std::string("GAME WINDOW"), 800, 600);
+
+    std::vector<std::unique_ptr<Renderable>> renderable_objects;
 
     // creates a surface to load an image into the main memory
     SDL_Surface* surface;
@@ -111,6 +150,8 @@ int main(int argc, char* argv[]) {
     // speed of box
     int speed = 300;
 
+    bool is_first_point = true;
+    std::array<int, 2> prev_point, curr_point;
     // animation loop
     while (!close) {
         SDL_Event event;
@@ -121,6 +162,26 @@ int main(int argc, char* argv[]) {
                 case SDL_QUIT:
                     // handling of close button
                     close = 1;
+                    break;
+                case SDL_MOUSEBUTTONDOWN:
+                    int x, y;
+                    Uint32 buttons;
+                    SDL_PumpEvents();  // make sure we have the latest mouse
+                                       // state.
+                    prev_point = curr_point;
+                    buttons = SDL_GetMouseState(&curr_point[0], &curr_point[1]);
+                    if ((buttons & SDL_BUTTON_LMASK) != 0) {
+                        SDL_Log("Mouse cursor  is at %d, %d", x, y);
+                        SDL_Log("Mouse Button 1 (left) is pressed.");
+                        std::cout << "first: " << is_first_point << std::endl;
+                        if (is_first_point) {
+                            is_first_point = false;
+                        } else {
+                            auto color = std::array<int, 3>{255, 255, 255};
+                            renderable_objects.push_back(std::make_unique<Line>(
+                                prev_point, curr_point, color));
+                        }
+                    }
                     break;
 
                 case SDL_KEYDOWN:
@@ -156,6 +217,9 @@ int main(int argc, char* argv[]) {
         win.clear();
         win.render_texture_in_rectangle(tex, dest);
 
+        for (auto& object : renderable_objects) {
+            object->render(win);
+        }
         // triggers the double buffers
         // for multiple rendering
         win.display();
